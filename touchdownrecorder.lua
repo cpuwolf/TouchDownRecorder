@@ -24,9 +24,9 @@ show_touchdown_recorder = false
 collect_touchdown_data = true
 ground_counter = 0
 
-local lastVS = 1
+local lastVS = 1.0
 local lastG = 1.0
-local lastPitch = 1
+local lastPitch = 1.0
 
 local gearFRef = XPLMFindDataRef("sim/flightmodel/forces/fnrml_gear")
 --local gearFRef = XPLMFindDataRef("sim/flightmodel/forces/faxil_gear")
@@ -37,18 +37,18 @@ local pitchRef = XPLMFindDataRef("sim/flightmodel/position/theta")
 
 function is_on_ground()
     if 0.0 ~= XPLMGetDataf(gearFRef) then
-        return 1
+        return true
         -- LAND
     end
 
-    return 0
+    return false
     -- AIR
 end
 
 function collect_flight_data()
-    lastVS = math.floor(XPLMGetDataf(vertSpeedRef))
+    lastVS = XPLMGetDataf(vertSpeedRef)
     lastG = XPLMGetDataf(gForceRef)
-    lastPitch = math.floor(XPLMGetDataf(pitchRef))
+    lastPitch = XPLMGetDataf(pitchRef)
     
     -- fill the table
     table.insert(touchdown_vs_table, lastVS)
@@ -80,28 +80,31 @@ function draw_touchdown_graph()
     graphics.draw_rectangle(x, y, x + (max_table_elements * 2), y + 200)
     
     -- calculate max vspeed
+    max_vs_recorded = 1.0
     for k, v in pairs(touchdown_vs_table) do
-        if v > max_vs_recorded then
+        if math.abs(v) > max_vs_recorded then
             max_vs_recorded = v
         end
     end
-    --local max_vs_recorded = 1200.0
+    local max_vs_recorded = 1200.0
 
     -- calculate max gforce
+    max_g_recorded = 1.0
     for k, g in pairs(touchdown_g_table) do
         if g > max_g_recorded then
             max_g_recorded = g
         end
     end
-    --local max_g_recorded = 2.2
+    local max_g_recorded = 2.2
 
     -- calculate max pitch
+    max_pch_recorded = 1.0
     for k, p in pairs(touchdown_pch_table) do
-        if p > max_pch_recorded then
+        if math.abs(p) > max_pch_recorded then
             max_pch_recorded = p
         end
     end
-    --local max_pch_recorded = 10
+    local max_pch_recorded = 10.0
     
     -- and print on the screen
     graphics.set_color(1, 1, 1, 1)
@@ -110,45 +113,51 @@ function draw_touchdown_graph()
 
     --text_to_print = "Max "..string.format("%.02f", max_g_recorded).." G"
     --width_text_to_print = measure_string(text_to_print)
-    draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y, "Max "..string.format("%.02f", max_g_recorded).." G")
-    draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y + 100, "Max "..tostring(max_vs_recorded).." fpm")
-    draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y + 200, "Max "..tostring(max_pch_recorded).." degree")
-    draw_string_Helvetica_12(x, y, "TouchDownRecorder V1.0")
+    --draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y, "Max "..string.format("%.02f", max_g_recorded).." G")
+    --draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y + 100, "Max "..string.format("%.02f", max_vs_recorded).." fpm")
+    --draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y + 200, "Max "..string.format("%.02f", max_pch_recorded).." degree")
+    --draw_string_Helvetica_12(x, y+200, "TouchDownRecorder V1.0")
     
     -- now draw the chart line
     graphics.set_color(0, 1, 0, 1)
-    graphics.set_width(3)
+    graphics.set_width(1)
+    draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y + 100, "Max "..string.format("%.02f", max_vs_recorded).." fpm")
+    x_tmp =  x
     local last_vs_recorded = touchdown_vs_table[1]
     for k, v in pairs(touchdown_vs_table) do
-        graphics.draw_line(x, y + (last_vs_recorded / max_vs_recorded * 200), x + 2, y + (v / max_vs_recorded * 200))
+        graphics.draw_line(x_tmp, y + (last_vs_recorded / max_vs_recorded * 200), x_tmp + 2, y + (v / max_vs_recorded * 200))
         if v == max_vs_recorded then
-            graphics.draw_line(x, y, x, y + (v / max_vs_recorded * 200))
+            --graphics.draw_line(x, y, x, y + (v / max_vs_recorded * 200))
         end
-        x = x + 2
+        x_tmp = x_tmp + 2
         last_vs_recorded = v
     end
     -- now draw the chart line
     graphics.set_color(0, 0, 1, 1)
     graphics.set_width(3)
+    draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y, "Max "..string.format("%.02f", max_g_recorded).." G")
+    x_tmp =  x
     local last_g_recorded = touchdown_g_table[1]
     for k, g in pairs(touchdown_g_table) do
-        graphics.draw_line(x, y + (last_g_recorded / max_g_recorded * 200), x + 2, y + (g / max_g_recorded * 200))
+        graphics.draw_line(x_tmp, y + (last_g_recorded / max_g_recorded * 200), x_tmp + 2, y + (g / max_g_recorded * 200))
         if g == max_g_recorded then
             graphics.draw_line(x, y, x, y + (g / max_g_recorded * 200))
         end
-        x = x + 2
+        x_tmp = x_tmp + 2
         last_g_recorded = g
     end
     -- now draw the chart line
     graphics.set_color(1, 0, 0, 1)
-    graphics.set_width(3)
+    graphics.set_width(1)
+    draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y + 200, "Max "..string.format("%.02f", max_pch_recorded).." degree")
+    x_tmp =  x
     local last_pch_recorded = touchdown_pch_table[1]
     for k, p in pairs(touchdown_pch_table) do
-        graphics.draw_line(x, y + (last_pch_recorded / last_pch_recorded * 200), x + 2, y + (p / last_pch_recorded * 200))
+        graphics.draw_line(x_tmp, y + (last_pch_recorded / last_pch_recorded * 200), x_tmp + 2, y + (p / last_pch_recorded * 200))
         if p == max_pch_recorded then
             graphics.draw_line(x, y, x, y + (p / last_pch_recorded * 200))
         end
-        x = x + 2
+        x_tmp = x_tmp + 2
         last_pch_recorded = p
     end
 end
@@ -162,12 +171,12 @@ function calc_touchdown()
             show_touchdown_recorder = true
         end
         -- stop data collection
-        if ground_counter == 10 then
+        if ground_counter == 4 then
             collect_touchdown_data = false
         end
         -- hide chart
         if ground_counter > 30 then
-            show_touchdown_recorder = false
+            --show_touchdown_recorder = false
         end
     else
         ground_counter = 0
