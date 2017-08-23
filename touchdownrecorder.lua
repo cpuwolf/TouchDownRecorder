@@ -106,6 +106,9 @@ function draw_touchdown_graph()
     graphics.set_color(1, 1, 1, 1)
     graphics.draw_line(x + (max_table_elements * 2), y + 200, x + (max_table_elements * 2) + 10, y + 200)
     graphics.draw_line(x + (max_table_elements * 2), y, x + (max_table_elements * 2) + 10, y)
+
+    --text_to_print = "Max "..string.format("%.02f", max_g_recorded).." G"
+    --width_text_to_print = measure_string(text_to_print)
     draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y, "Max "..string.format("%.02f", max_g_recorded).." G")
     draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y + 100, "Max "..tostring(max_vs_recorded).." fpm")
     draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y + 200, "Max "..tostring(max_pch_recorded).." degree")
