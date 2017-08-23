@@ -86,7 +86,7 @@ function draw_touchdown_graph()
             max_vs_recorded = v
         end
     end
-    local max_vs_recorded = 1200.0
+    max_vs_recorded = 1200.0
 
     -- calculate max gforce
     max_g_recorded = 1.0
@@ -95,7 +95,7 @@ function draw_touchdown_graph()
             max_g_recorded = g
         end
     end
-    local max_g_recorded = 2.2
+    max_g_recorded = 2.2
 
     -- calculate max pitch
     max_pch_recorded = 1.0
@@ -104,24 +104,21 @@ function draw_touchdown_graph()
             max_pch_recorded = p
         end
     end
-    local max_pch_recorded = 10.0
+    max_pch_recorded = 10.0
     
     -- and print on the screen
     graphics.set_color(1, 1, 1, 1)
     graphics.draw_line(x + (max_table_elements * 2), y + 200, x + (max_table_elements * 2) + 10, y + 200)
     graphics.draw_line(x + (max_table_elements * 2), y, x + (max_table_elements * 2) + 10, y)
 
-    --text_to_print = "Max "..string.format("%.02f", max_g_recorded).." G"
-    --width_text_to_print = measure_string(text_to_print)
-    --draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y, "Max "..string.format("%.02f", max_g_recorded).." G")
-    --draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y + 100, "Max "..string.format("%.02f", max_vs_recorded).." fpm")
-    --draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y + 200, "Max "..string.format("%.02f", max_pch_recorded).." degree")
-    --draw_string_Helvetica_12(x, y+200, "TouchDownRecorder V1.0")
+    text_to_print = "Max 1200.00 degree"
+    width_text_to_print = measure_string(text_to_print)
+    draw_string_Helvetica_12(x, y + 200 - 15, "TouchDownRecorder V1.0")
     
     -- now draw the chart line
     graphics.set_color(0, 1, 0, 1)
     graphics.set_width(1)
-    draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y + 100, "Max "..string.format("%.02f", max_vs_recorded).." fpm")
+    draw_string_Helvetica_12(x + (max_table_elements * 2) - width_text_to_print, y + 100, "Max "..string.format("%.02f", max_vs_recorded).." fpm")
     x_tmp =  x
     local last_vs_recorded = touchdown_vs_table[1]
     for k, v in pairs(touchdown_vs_table) do
@@ -135,7 +132,7 @@ function draw_touchdown_graph()
     -- now draw the chart line
     graphics.set_color(0, 0, 1, 1)
     graphics.set_width(3)
-    draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y, "Max "..string.format("%.02f", max_g_recorded).." G")
+    draw_string_Helvetica_12(x + (max_table_elements * 2) - width_text_to_print, y, "Max "..string.format("%.02f", max_g_recorded).." G")
     x_tmp =  x
     local last_g_recorded = touchdown_g_table[1]
     for k, g in pairs(touchdown_g_table) do
@@ -149,13 +146,13 @@ function draw_touchdown_graph()
     -- now draw the chart line
     graphics.set_color(1, 0, 0, 1)
     graphics.set_width(1)
-    draw_string_Helvetica_12(x + (max_table_elements * 2) + 15, y + 200, "Max "..string.format("%.02f", max_pch_recorded).." degree")
+    draw_string_Helvetica_12(x + (max_table_elements * 2) - width_text_to_print, y + 200 - 15, "Max "..string.format("%.02f", max_pch_recorded).." degree")
     x_tmp =  x
     local last_pch_recorded = touchdown_pch_table[1]
     for k, p in pairs(touchdown_pch_table) do
-        graphics.draw_line(x_tmp, y + (last_pch_recorded / last_pch_recorded * 200), x_tmp + 2, y + (p / last_pch_recorded * 200))
+        graphics.draw_line(x_tmp, y + (last_pch_recorded / max_pch_recorded * 200), x_tmp + 2, y + (p / max_pch_recorded * 200))
         if p == max_pch_recorded then
-            graphics.draw_line(x, y, x, y + (p / last_pch_recorded * 200))
+            graphics.draw_line(x, y, x, y + (p / max_pch_recorded * 200))
         end
         x_tmp = x_tmp + 2
         last_pch_recorded = p
