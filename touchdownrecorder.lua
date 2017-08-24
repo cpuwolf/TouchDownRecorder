@@ -95,7 +95,7 @@ function draw_touchdown_graph()
             max_vs_recorded = vm
         end
     end
-    max_vs_axis = 500.0
+    max_vs_axis = 1000.0
 
     -- calculate max gforce
     max_g_recorded = 1.0
@@ -117,26 +117,31 @@ function draw_touchdown_graph()
     
     -- and print on the screen
     graphics.set_color(1, 1, 1, 1)
-    graphics.set_width(1)
+    graphics.set_width(3)
     -- title
     draw_string(x + 5, y + _TD_CHART_HEIGHT - 15, "TouchDownRecorder V1.0 by cpuwolf")
-
-    -- draw touch point vertical lines
-    x_tmp = x
-    local last_air_recorded = touchdown_air_table[1]
-    for k, a in pairs(touchdown_air_table) do
-        if a ~= last_air_recorded then
-            graphics.draw_line(x_tmp, y, x_tmp, y + _TD_CHART_HEIGHT)
-        end
-        x_tmp = x_tmp + 2
-        last_air_recorded = a
-    end
     --graphics.draw_line(x + (max_table_elements * 2), y + _TD_CHART_HEIGHT, x + (max_table_elements * 2) + 10, y + _TD_CHART_HEIGHT)
     --graphics.draw_line(x + (max_table_elements * 2), y, x + (max_table_elements * 2) + 10, y)
 
 
     x_text = x + 5
     y_text = y + 15
+    -- draw touch point vertical lines
+    x_tmp = x
+    local last_air_recorded = touchdown_air_table[1]
+    for k, a in pairs(touchdown_air_table) do
+        if a ~= last_air_recorded then
+            graphics.draw_line(x_tmp, y, x_tmp, y + _TD_CHART_HEIGHT)
+            -- print text
+            text_to_print = " "..string.format("%.02f", touchdown_vs_table[k]).." fpm "..string.format("%.02f", touchdown_g_table[k]).." G "..string.format("%.02f", touchdown_pch_table[k]).." degree "
+            width_text_to_print = measure_string(text_to_print)
+            draw_string(x_text, y_text, text_to_print)
+            x_text = x_text + width_text_to_print
+        end
+        x_tmp = x_tmp + 2
+        last_air_recorded = a
+    end
+
     
     -- now draw the chart line
     graphics.set_color(0, 1, 0, 1)
@@ -160,7 +165,7 @@ function draw_touchdown_graph()
     end
     -- now draw the chart line
     graphics.set_color(0.054, 0.388, 1.0, 1)
-    graphics.set_width(2)
+    graphics.set_width(1)
     -- print text
     text_to_print = "Max "..string.format("%.02f", max_g_recorded).." G "
     width_text_to_print = measure_string(text_to_print)
@@ -212,8 +217,8 @@ function calc_touchdown()
             collect_touchdown_data = false
         end
         -- hide chart
-        if ground_counter > 30 then
-            --show_touchdown_recorder = false
+        if ground_counter > 60 then
+            show_touchdown_recorder = false
         end
     else
         ground_counter = 0
