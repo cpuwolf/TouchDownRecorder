@@ -89,13 +89,13 @@ function draw_touchdown_graph()
     graphics.draw_rectangle(x, y, x + (max_table_elements * 2), y + _TD_CHART_HEIGHT)
     
     -- calculate max vspeed
-    max_vs_recorded = 1.0
-    for k, v in pairs(touchdown_vs_table) do
-        if math.abs(v) > max_vs_recorded then
-            max_vs_recorded = v
+    max_vs_recorded = 0.0
+    for k, vm in pairs(touchdown_vs_table) do
+        if math.abs(vm) > math.abs(max_vs_recorded) then
+            max_vs_recorded = vm
         end
     end
-    max_vs_axis = 300.0
+    max_vs_axis = 500.0
 
     -- calculate max gforce
     max_g_recorded = 1.0
@@ -109,11 +109,11 @@ function draw_touchdown_graph()
     -- calculate max pitch
     max_pch_recorded = 1.0
     for k, p in pairs(touchdown_pch_table) do
-        if math.abs(p) > max_pch_recorded then
+        if math.abs(p) > math.abs(max_pch_recorded) then
             max_pch_recorded = p
         end
     end
-    max_pch_axis = 6.0
+    max_pch_axis = 10.0
     
     -- and print on the screen
     graphics.set_color(1, 1, 1, 1)
@@ -148,11 +148,12 @@ function draw_touchdown_graph()
     x_text = x_text + width_text_to_print
     -- draw line
     x_tmp = x
+    y_tmp = y + (_TD_CHART_HEIGHT / 2)
     local last_vs_recorded = touchdown_vs_table[1]
     for k, v in pairs(touchdown_vs_table) do
-        graphics.draw_line(x_tmp, y + (last_vs_recorded / max_vs_axis * _TD_CHART_HEIGHT / 2), x_tmp + 2, y + (v / max_vs_axis * _TD_CHART_HEIGHT / 2))
+        graphics.draw_line(x_tmp, y_tmp + (last_vs_recorded / max_vs_axis * _TD_CHART_HEIGHT), x_tmp + 2, y_tmp + (v / max_vs_axis * _TD_CHART_HEIGHT))
         if v == max_vs_recorded then
-            graphics.draw_line(x_tmp, y, x_tmp, y + (v / max_vs_recorded * _TD_CHART_HEIGHT))
+            graphics.draw_line(x_tmp, y, x_tmp, y + (_TD_CHART_HEIGHT))
         end
         x_tmp = x_tmp + 2
         last_vs_recorded = v
@@ -171,7 +172,7 @@ function draw_touchdown_graph()
     for k, g in pairs(touchdown_g_table) do
         graphics.draw_line(x_tmp, y + (last_g_recorded / max_g_axis * _TD_CHART_HEIGHT), x_tmp + 2, y + (g / max_g_axis * _TD_CHART_HEIGHT))
         if g == max_g_recorded then
-            graphics.draw_line(x_tmp, y, x_tmp, y + (g / max_g_recorded * _TD_CHART_HEIGHT))
+            graphics.draw_line(x_tmp, y, x_tmp, y + (_TD_CHART_HEIGHT))
         end
         x_tmp = x_tmp + 2
         last_g_recorded = g
@@ -186,11 +187,12 @@ function draw_touchdown_graph()
     x_text = x_text + width_text_to_print
     -- draw line
     x_tmp = x
+    y_tmp = y + (_TD_CHART_HEIGHT / 2)
     local last_pch_recorded = touchdown_pch_table[1]
     for k, p in pairs(touchdown_pch_table) do
-        graphics.draw_line(x_tmp, y + (last_pch_recorded / max_pch_axis * _TD_CHART_HEIGHT / 2), x_tmp + 2, y + (p / max_pch_axis * _TD_CHART_HEIGHT / 2))
+        graphics.draw_line(x_tmp, y_tmp + (last_pch_recorded / max_pch_axis * _TD_CHART_HEIGHT), x_tmp + 2, y_tmp + (p / max_pch_axis * _TD_CHART_HEIGHT))
         if p == max_pch_recorded then
-            graphics.draw_line(x_tmp, y, x_tmp, y + (p / max_pch_recorded * _TD_CHART_HEIGHT))
+            graphics.draw_line(x_tmp, y, x_tmp, y + (_TD_CHART_HEIGHT))
         end
         x_tmp = x_tmp + 2
         last_pch_recorded = p
