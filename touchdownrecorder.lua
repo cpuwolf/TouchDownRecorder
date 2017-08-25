@@ -83,7 +83,7 @@ function draw_touchdown_graph()
     
     -- draw background first
     local x = (SCREEN_WIDTH / 2) - max_table_elements
-    local y = (SCREEN_HIGHT / 2) - 100
+    local y = (SCREEN_HIGHT / 2) + 200
     XPLMSetGraphicsState(0,0,0,1,1,0,0)
     graphics.set_color(0, 0, 0, 0.50)
     graphics.draw_rectangle(x, y, x + (max_table_elements * 2), y + _TD_CHART_HEIGHT)
@@ -104,7 +104,7 @@ function draw_touchdown_graph()
             max_g_recorded = g
         end
     end
-    max_g_axis = 2.2
+    max_g_axis = 2.0
 
     -- calculate max pitch
     max_pch_recorded = 1.0
@@ -113,30 +113,35 @@ function draw_touchdown_graph()
             max_pch_recorded = p
         end
     end
-    max_pch_axis = 10.0
+    max_pch_axis = 14.0
     
     -- and print on the screen
     graphics.set_color(1, 1, 1, 1)
     graphics.set_width(3)
     -- title
-    draw_string(x + 5, y + _TD_CHART_HEIGHT - 15, "TouchDownRecorder V1.0 by cpuwolf")
-    --graphics.draw_line(x + (max_table_elements * 2), y + _TD_CHART_HEIGHT, x + (max_table_elements * 2) + 10, y + _TD_CHART_HEIGHT)
-    --graphics.draw_line(x + (max_table_elements * 2), y, x + (max_table_elements * 2) + 10, y)
+    draw_string(x + 5, y + _TD_CHART_HEIGHT - 15, "TouchDownRecorder V1.0 by cpuwolf", "grey")
+    -- draw center line
+    graphics.set_color(0, 0, 0, 0.8)
+    graphics.set_width(1)
+    graphics.draw_line(x, y + (_TD_CHART_HEIGHT / 2), x + (max_table_elements * 2) + 10, y + (_TD_CHART_HEIGHT / 2))
 
 
     x_text = x + 5
-    y_text = y + 15
+    y_text = y + 12
     -- draw touch point vertical lines
     x_tmp = x
     local last_air_recorded = touchdown_air_table[1]
     for k, a in pairs(touchdown_air_table) do
         if a ~= last_air_recorded then
-            graphics.draw_line(x_tmp, y, x_tmp, y + _TD_CHART_HEIGHT)
-            -- print text
-            text_to_print = " "..string.format("%.02f", touchdown_vs_table[k]).." fpm "..string.format("%.02f", touchdown_g_table[k]).." G "..string.format("%.02f", touchdown_pch_table[k]).." degree "
-            width_text_to_print = measure_string(text_to_print)
-            draw_string(x_text, y_text, text_to_print)
-            x_text = x_text + width_text_to_print
+            if a then
+                -- draw vertical line
+                graphics.draw_line(x_tmp, y, x_tmp, y + _TD_CHART_HEIGHT)
+                -- print text
+                text_to_print = string.format("%.02f", touchdown_vs_table[k]).." fpm "..string.format("%.02f", touchdown_g_table[k]).." G "..string.format("%.02f", touchdown_pch_table[k]).." Degree |"
+                width_text_to_print = measure_string(text_to_print)
+                draw_string(x_text, y_text, text_to_print)
+                x_text = x_text + width_text_to_print
+            end
         end
         x_tmp = x_tmp + 2
         last_air_recorded = a
@@ -149,7 +154,7 @@ function draw_touchdown_graph()
     -- print text
     text_to_print = "Max "..string.format("%.02f", max_vs_recorded).." fpm "
     width_text_to_print = measure_string(text_to_print)
-    draw_string_Helvetica_12(x_text, y_text, text_to_print)
+    draw_string(x_text, y_text, text_to_print, 0, 1, 0)
     x_text = x_text + width_text_to_print
     -- draw line
     x_tmp = x
@@ -164,12 +169,12 @@ function draw_touchdown_graph()
         last_vs_recorded = v
     end
     -- now draw the chart line
-    graphics.set_color(0.054, 0.388, 1.0, 1)
+    graphics.set_color(1, 0, 0, 1)
     graphics.set_width(1)
     -- print text
     text_to_print = "Max "..string.format("%.02f", max_g_recorded).." G "
     width_text_to_print = measure_string(text_to_print)
-    draw_string_Helvetica_12(x_text, y_text, text_to_print)
+    draw_string(x_text, y_text, text_to_print, 1, 0, 0)
     x_text = x_text + width_text_to_print
     -- draw line
     x_tmp = x
@@ -183,12 +188,12 @@ function draw_touchdown_graph()
         last_g_recorded = g
     end
     -- now draw the chart line
-    graphics.set_color(1, 0, 0, 1)
+    graphics.set_color(0, 1, 0.5, 1)
     graphics.set_width(1)
     -- print text
     text_to_print = "Max "..string.format("%.02f", max_pch_recorded).." Degree "
     width_text_to_print = measure_string(text_to_print)
-    draw_string_Helvetica_12(x_text, y_text, text_to_print)
+    draw_string(x_text, y_text, text_to_print, 0, 1, 0.5)
     x_text = x_text + width_text_to_print
     -- draw line
     x_tmp = x
@@ -213,7 +218,7 @@ function calc_touchdown()
             show_touchdown_recorder = true
         end
         -- stop data collection
-        if ground_counter == 4 then
+        if ground_counter == 3 then
             collect_touchdown_data = false
         end
         -- hide chart
