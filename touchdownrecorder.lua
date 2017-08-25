@@ -37,6 +37,25 @@ local gForceRef = XPLMFindDataRef("sim/flightmodel2/misc/gforce_normal")
 local vertSpeedRef = XPLMFindDataRef("sim/flightmodel/position/vh_ind_fpm2")
 local pitchRef = XPLMFindDataRef("sim/flightmodel/position/theta")
 
+local landingVS = {}
+local landingG = {}
+local landingPitch = {}
+
+function write_log_file()
+    -- get airport info
+    navref = XPLMFindNavAid( nil, nil, LATITUDE, LONGITUDE, nil, xplm_Nav_Airport)
+    local outID
+    local outName
+    -- all output we are not intereted in can be send to variable _ (a dummy variable)
+    _, _, _, _, _, _, logAirportId, logAirportName = XPLMGetNavAidInfo(navref)
+
+    buf = string.format("%s '%s' %s %s %.2f fpm %.2f G %.2f Degree\n", os.date(), PLANE_TAILNUMBER,
+                logAirportId, logAirportName, landingVS, landingG, landingPitch)
+    local file = io.open(SCRIPT_DIRECTORY.."TouchDownRecorderLog.txt", "a+")
+    file:write(buf)
+    file:close()
+end
+
 
 function check_ground(n)
     if 0.0 ~= n then
@@ -137,7 +156,10 @@ function draw_touchdown_graph()
                 -- draw vertical line
                 graphics.draw_line(x_tmp, y, x_tmp, y + _TD_CHART_HEIGHT)
                 -- print text
-                text_to_print = string.format("%.02f", touchdown_vs_table[k]).." fpm "..string.format("%.02f", touchdown_g_table[k]).." G "..string.format("%.02f", touchdown_pch_table[k]).." Degree |"
+                landingVS = touchdown_vs_table[k]
+                landingG = touchdown_g_table[k]
+                landingPitch = touchdown_pch_table[k]
+                text_to_print = string.format("%.02f", landingVS).." fpm "..string.format("%.02f", landingG).." G "..string.format("%.02f", landingPitch).." Degree |"
                 width_text_to_print = measure_string(text_to_print)
                 draw_string(x_text, y_text, text_to_print)
                 x_text = x_text + width_text_to_print
