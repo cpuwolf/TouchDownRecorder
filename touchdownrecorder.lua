@@ -44,13 +44,12 @@ local landingPitch = {}
 function write_log_file()
     -- get airport info
     navref = XPLMFindNavAid( nil, nil, LATITUDE, LONGITUDE, nil, xplm_Nav_Airport)
-    local outID
-    local outName
+    local logAirportId
+    local logAirportName
     -- all output we are not intereted in can be send to variable _ (a dummy variable)
     _, _, _, _, _, _, logAirportId, logAirportName = XPLMGetNavAidInfo(navref)
 
-    buf = string.format("%s '%s' %s %s %.2f fpm %.2f G %.2f Degree\n", os.date(), PLANE_TAILNUMBER,
-                logAirportId, logAirportName, landingVS, landingG, landingPitch)
+    buf = string.format("%s '%s' %s %s %.2f fpm %.2f G %.2f Degree\n", os.date(), PLANE_TAILNUMBER, logAirportId, logAirportName, landingVS, landingG, landingPitch)
     local file = io.open(SCRIPT_DIRECTORY.."TouchDownRecorderLog.txt", "a+")
     file:write(buf)
     file:close()
