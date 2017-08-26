@@ -37,9 +37,9 @@ local gForceRef = XPLMFindDataRef("sim/flightmodel2/misc/gforce_normal")
 local vertSpeedRef = XPLMFindDataRef("sim/flightmodel/position/vh_ind_fpm2")
 local pitchRef = XPLMFindDataRef("sim/flightmodel/position/theta")
 
-local landingVS = {}
-local landingG = {}
-local landingPitch = {}
+local landingString = ""
+local IsLogWritten = true
+local IsTouchDown = false
 
 function write_log_file()
     -- get airport info
@@ -49,10 +49,11 @@ function write_log_file()
     -- all output we are not intereted in can be send to variable _ (a dummy variable)
     _, _, _, _, _, _, logAirportId, logAirportName = XPLMGetNavAidInfo(navref)
 
-    buf = string.format("%s '%s' %s %s %.2f fpm %.2f G %.2f Degree\n", os.date(), PLANE_TAILNUMBER, logAirportId, logAirportName, landingVS, landingG, landingPitch)
+    buf = string.format("%s [%s] %s %s %s\n", os.date(), PLANE_TAILNUMBER, logAirportId, logAirportName, landingString)
     local file = io.open(SCRIPT_DIRECTORY.."TouchDownRecorderLog.txt", "a+")
     file:write(buf)
     file:close()
+    IsLogWritten = true
 end
 
 
@@ -101,7 +102,7 @@ function draw_touchdown_graph()
     
     -- draw background first
     local x = (SCREEN_WIDTH / 2) - max_table_elements
-    local y = (SCREEN_HIGHT / 2) + 200
+    local y = (SCREEN_HIGHT / 2) + 300
     XPLMSetGraphicsState(0,0,0,1,1,0,0)
     graphics.set_color(0, 0, 0, 0.50)
     graphics.draw_rectangle(x, y, x + (max_table_elements * 2), y + _TD_CHART_HEIGHT)
@@ -142,23 +143,26 @@ function draw_touchdown_graph()
     graphics.set_color(1, 1, 1, 1)
     graphics.set_width(3)
     -- title
-    draw_string(x + 5, y + _TD_CHART_HEIGHT - 15, "TouchDownRecorder V1.0 by cpuwolf", "grey")
+    draw_string(x + 5, y + _TD_CHART_HEIGHT - 15, "TouchDownRecorder V2.0 by cpuwolf", "grey")
 
     x_text = x + 5
-    y_text = y + 12
+    y_text = y + 8
     -- draw touch point vertical lines
     x_tmp = x
+    landingString = ""
     local last_air_recorded = touchdown_air_table[1]
     for k, a in pairs(touchdown_air_table) do
         if a ~= last_air_recorded then
             if a then
+                IsTouchDown = true
                 -- draw vertical line
                 graphics.draw_line(x_tmp, y, x_tmp, y + _TD_CHART_HEIGHT)
                 -- print text
                 landingVS = touchdown_vs_table[k]
                 landingG = touchdown_g_table[k]
                 landingPitch = touchdown_pch_table[k]
-                text_to_print = string.format("%.02f", landingVS).." fpm "..string.format("%.02f", landingG).." G "..string.format("%.02f", landingPitch).." Degree |"
+                text_to_print = string.format("%.02f", landingVS).."fpm "..string.format("%.02f", landingG).."G "..string.format("%.02f", landingPitch).."Degree | "
+                landingString = landingString..text_to_print
                 width_text_to_print = measure_string(text_to_print)
                 draw_string(x_text, y_text, text_to_print)
                 x_text = x_text + width_text_to_print
@@ -173,7 +177,7 @@ function draw_touchdown_graph()
     graphics.set_color(0, 1, 0, 1)
     graphics.set_width(1)
     -- print text
-    text_to_print = "Max "..string.format("%.02f", max_vs_recorded).." fpm "
+    text_to_print = "Max "..string.format("%.02f", max_vs_recorded).."fpm "
     width_text_to_print = measure_string(text_to_print)
     draw_string(x_text, y_text, text_to_print, 0, 1, 0)
     x_text = x_text + width_text_to_print
@@ -193,7 +197,7 @@ function draw_touchdown_graph()
     graphics.set_color(1, 0.68, 0.78, 1)
     graphics.set_width(1)
     -- print text
-    text_to_print = "Max "..string.format("%.02f", max_g_recorded).." G "
+    text_to_print = "Max "..string.format("%.02f", max_g_recorded).."G "
     width_text_to_print = measure_string(text_to_print)
     draw_string(x_text, y_text, text_to_print, 1, 0.68, 0.78)
     x_text = x_text + width_text_to_print
@@ -212,7 +216,7 @@ function draw_touchdown_graph()
     graphics.set_color(0.6, 0.85, 0.87, 1)
     graphics.set_width(1)
     -- print text
-    text_to_print = "Max "..string.format("%.02f", max_pch_recorded).." Degree "
+    text_to_print = "Max "..string.format("%.02f", max_pch_recorded).."Degree "
     width_text_to_print = measure_string(text_to_print)
     draw_string(x_text, y_text, text_to_print, 0.6, 0.85, 0.87)
     x_text = x_text + width_text_to_print
@@ -234,13 +238,21 @@ function calc_touchdown()
     is_gnd = is_on_ground()
     if is_gnd then
         ground_counter = ground_counter + 1
-        -- ignore debounce
+        -- ignore debounce takeoff
         if ground_counter == 2 then
             show_touchdown_recorder = true
         end
         -- stop data collection
         if ground_counter == 3 then
             collect_touchdown_data = false
+            if IsTouchDown then
+                IsLogWritten = false
+            end
+        end
+        if ground_counter == 5 then
+            if not IsLogWritten then
+                write_log_file()
+            end
         end
         -- hide chart
         if ground_counter > 60 then
