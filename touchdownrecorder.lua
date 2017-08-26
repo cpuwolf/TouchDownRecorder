@@ -136,7 +136,7 @@ function draw_touchdown_graph()
     -- draw center line
     graphics.set_color(0, 0, 0, 0.8)
     graphics.set_width(1)
-    graphics.draw_line(x, y + (_TD_CHART_HEIGHT / 2), x + (max_table_elements * 2) + 10, y + (_TD_CHART_HEIGHT / 2))
+    graphics.draw_line(x, y + (_TD_CHART_HEIGHT / 2), x + (max_table_elements * 2), y + (_TD_CHART_HEIGHT / 2))
 
     -- and print on the screen
     graphics.set_color(1, 1, 1, 1)
@@ -169,7 +169,7 @@ function draw_touchdown_graph()
     end
 
     
-    -- now draw the chart line
+    -- now draw the chart line green
     graphics.set_color(0, 1, 0, 1)
     graphics.set_width(1)
     -- print text
@@ -189,13 +189,13 @@ function draw_touchdown_graph()
         x_tmp = x_tmp + 2
         last_vs_recorded = v
     end
-    -- now draw the chart line
-    graphics.set_color(1, 0, 0, 1)
+    -- now draw the chart line red
+    graphics.set_color(1, 0.68, 0.78, 1)
     graphics.set_width(1)
     -- print text
     text_to_print = "Max "..string.format("%.02f", max_g_recorded).." G "
     width_text_to_print = measure_string(text_to_print)
-    draw_string(x_text, y_text, text_to_print, 1, 0, 0)
+    draw_string(x_text, y_text, text_to_print, 1, 0.68, 0.78)
     x_text = x_text + width_text_to_print
     -- draw line
     x_tmp = x
@@ -208,13 +208,13 @@ function draw_touchdown_graph()
         x_tmp = x_tmp + 2
         last_g_recorded = g
     end
-    -- now draw the chart line
-    graphics.set_color(0, 0, 0.8, 1)
+    -- now draw the chart line light blue
+    graphics.set_color(0.6, 0.85, 0.87, 1)
     graphics.set_width(1)
     -- print text
     text_to_print = "Max "..string.format("%.02f", max_pch_recorded).." Degree "
     width_text_to_print = measure_string(text_to_print)
-    draw_string(x_text, y_text, text_to_print, 0, 0, 0.8)
+    draw_string(x_text, y_text, text_to_print, 0.6, 0.85, 0.87)
     x_text = x_text + width_text_to_print
     -- draw line
     x_tmp = x
