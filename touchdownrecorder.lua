@@ -40,6 +40,7 @@ local pitchRef = XPLMFindDataRef("sim/flightmodel/position/theta")
 local landingString = ""
 local IsLogWritten = true
 local IsTouchDown = false
+local IsFirstTimeShow = true
 
 function write_log_file()
     -- get airport info
@@ -241,26 +242,27 @@ function calc_touchdown()
         -- ignore debounce takeoff
         if ground_counter == 2 then
             show_touchdown_recorder = true
-        end
         -- stop data collection
-        if ground_counter == 3 then
+        elseif ground_counter == 3 then
             collect_touchdown_data = false
             if IsTouchDown then
                 IsLogWritten = false
             end
-        end
-        if ground_counter == 5 then
+        elseif ground_counter == 5 then
             if not IsLogWritten then
                 write_log_file()
             end
-        end
+        elseif IsFirstTimeShow and ground_counter == 8 then
+            show_touchdown_recorder = false
+            IsFirstTimeShow = false
         -- hide chart
-        if ground_counter > 60 then
+        elseif ground_counter > 60 then
             show_touchdown_recorder = false
         end
     else
         ground_counter = 0
         collect_touchdown_data = true
+        IsTouchDown = false
     end
 end
 
