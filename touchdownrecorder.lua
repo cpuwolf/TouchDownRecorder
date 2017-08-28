@@ -36,6 +36,7 @@ local gearFRef = XPLMFindDataRef("sim/flightmodel/forces/fnrml_gear")
 local gForceRef = XPLMFindDataRef("sim/flightmodel2/misc/gforce_normal")
 local vertSpeedRef = XPLMFindDataRef("sim/flightmodel/position/vh_ind_fpm2")
 local pitchRef = XPLMFindDataRef("sim/flightmodel/position/theta")
+local elevatorRef = XPLMFindDataRef("sim/flightmodel2/controls/pitch_ratio")
 
 local landingString = ""
 local IsLogWritten = true
