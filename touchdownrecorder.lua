@@ -18,6 +18,8 @@ local touchdown_vs_table = {}
 local touchdown_g_table = {}
 local touchdown_pch_table = {}
 local touchdown_air_table = {}
+local touchdown_elev_table = {}
+local touchdown_eng_table = {}
 
 local _TD_CHART_HEIGHT = 200
 
@@ -31,6 +33,8 @@ local lastVS = 1.0
 local lastG = 1.0
 local lastPitch = 1.0
 local lastAir = false
+local lastElev = 0.0
+local lastEng = 0.0
 
 local gearFRef = XPLMFindDataRef("sim/flightmodel/forces/fnrml_gear")
 local gForceRef = XPLMFindDataRef("sim/flightmodel2/misc/gforce_normal")
@@ -78,12 +82,16 @@ function collect_flight_data()
     lastG = XPLMGetDataf(gForceRef)
     lastPitch = XPLMGetDataf(pitchRef)
     lastAir = check_ground(XPLMGetDataf(gearFRef))
+    lastElev = XPLMGetDataf(elevatorRef)
+    lastEng = XPLMGetDataf(engRef)
     
     -- fill the table
     table.insert(touchdown_vs_table, lastVS)
     table.insert(touchdown_g_table, lastG)
     table.insert(touchdown_pch_table, lastPitch)
     table.insert(touchdown_air_table, lastAir)
+    table.insert(touchdown_elev_table, lastElev)
+    table.insert(touchdown_eng_table, lastEng)
     
     -- limit the table size to the given maximum
     if table.maxn(touchdown_vs_table) > max_table_elements then
@@ -91,7 +99,46 @@ function collect_flight_data()
         table.remove(touchdown_g_table, 1)
         table.remove(touchdown_pch_table, 1)
         table.remove(touchdown_air_table, 1)
+        table.remove(touchdown_elev_table, 1)
+        table.remove(touchdown_eng_table, 1)
     end
+end
+
+function get_max_val(mytable)
+    -- calculate max data
+    local max_data = 0.0
+    for k, el in pairs(mytable) do
+        if math.abs(el) > math.abs(max_data) then
+            max_data = el
+        end
+    end
+    return max_data
+end
+
+function draw_curve(mytable, cr,cg,cb, text_to_print, x_text_start, y_text_start, x_orig, y_orig, x_start, y_start, max_axis, max_data)
+    -- now draw the chart line orange
+    graphics.set_color(cr, cg, cb, 1)
+    graphics.set_width(1)
+    -- print text
+    local x_text = x_text_start
+    local y_text = y_text_start
+    local width_text_to_print = measure_string(text_to_print)
+    draw_string(x_text, y_text, text_to_print, cr, cg, cb)
+    x_text = x_text + width_text_to_print
+    -- draw line
+    local x_tmp = x_start
+    local y_tmp = y_start
+    local last_recorded = mytable[1]
+    for k, p in pairs(mytable) do
+        graphics.draw_line(x_tmp, y_tmp + (last_recorded / max_axis * _TD_CHART_HEIGHT), x_tmp + 2, y_tmp + (p / max_axis * _TD_CHART_HEIGHT))
+        if p == max_data then
+            graphics.draw_line(x_tmp, y_orig, x_tmp, y_orig + (_TD_CHART_HEIGHT))
+        end
+        x_tmp = x_tmp + 2
+        last_recorded = p
+    end
+
+    return x_text
 end
 
 function draw_touchdown_graph()
@@ -104,38 +151,11 @@ function draw_touchdown_graph()
     
     -- draw background first
     local x = (SCREEN_WIDTH / 2) - max_table_elements
-    local y = (SCREEN_HIGHT / 2) + 300
+    local y = (SCREEN_HIGHT / 2) + 200
     XPLMSetGraphicsState(0,0,0,1,1,0,0)
     graphics.set_color(0, 0, 0, 0.50)
     graphics.draw_rectangle(x, y, x + (max_table_elements * 2), y + _TD_CHART_HEIGHT)
-    
-    -- calculate max vspeed
-    max_vs_recorded = 0.0
-    for k, vm in pairs(touchdown_vs_table) do
-        if math.abs(vm) > math.abs(max_vs_recorded) then
-            max_vs_recorded = vm
-        end
-    end
-    max_vs_axis = 1000.0
 
-    -- calculate max gforce
-    max_g_recorded = 1.0
-    for k, g in pairs(touchdown_g_table) do
-        if g > max_g_recorded then
-            max_g_recorded = g
-        end
-    end
-    max_g_axis = 2.0
-
-    -- calculate max pitch
-    max_pch_recorded = 1.0
-    for k, p in pairs(touchdown_pch_table) do
-        if math.abs(p) > math.abs(max_pch_recorded) then
-            max_pch_recorded = p
-        end
-    end
-    max_pch_axis = 14.0
-    
     -- draw center line
     graphics.set_color(0, 0, 0, 0.8)
     graphics.set_width(1)
@@ -147,8 +167,8 @@ function draw_touchdown_graph()
     -- title
     draw_string(x + 5, y + _TD_CHART_HEIGHT - 15, "TouchDownRecorder V2.0 by cpuwolf", "grey")
 
-    x_text = x + 5
-    y_text = y + 8
+    local x_text = x + 5
+    local y_text = y + 8
     -- draw touch point vertical lines
     x_tmp = x
     landingString = ""
@@ -174,66 +194,36 @@ function draw_touchdown_graph()
         last_air_recorded = a
     end
 
-    
     -- now draw the chart line green
-    graphics.set_color(0, 1, 0, 1)
-    graphics.set_width(1)
-    -- print text
-    text_to_print = "Max "..string.format("%.02f", max_vs_recorded).."fpm "
-    width_text_to_print = measure_string(text_to_print)
-    draw_string(x_text, y_text, text_to_print, 0, 1, 0)
-    x_text = x_text + width_text_to_print
-    -- draw line
-    x_tmp = x
-    y_tmp = y + (_TD_CHART_HEIGHT / 2)
-    local last_vs_recorded = touchdown_vs_table[1]
-    for k, v in pairs(touchdown_vs_table) do
-        graphics.draw_line(x_tmp, y_tmp + (last_vs_recorded / max_vs_axis * _TD_CHART_HEIGHT), x_tmp + 2, y_tmp + (v / max_vs_axis * _TD_CHART_HEIGHT))
-        if v == max_vs_recorded then
-            graphics.draw_line(x_tmp, y, x_tmp, y + (_TD_CHART_HEIGHT))
-        end
-        x_tmp = x_tmp + 2
-        last_vs_recorded = v
-    end
+    max_vs_axis = 1000.0
+    max_vs_recorded = get_max_val(touchdown_vs_table)
+    text_to_p = "Max "..string.format("%.02f", max_vs_recorded).."fpm "
+    x_text = draw_curve(touchdown_vs_table, 0,1,0, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_vs_axis, max_vs_recorded)
+
     -- now draw the chart line red
-    graphics.set_color(1, 0.68, 0.78, 1)
-    graphics.set_width(1)
-    -- print text
-    text_to_print = "Max "..string.format("%.02f", max_g_recorded).."G "
-    width_text_to_print = measure_string(text_to_print)
-    draw_string(x_text, y_text, text_to_print, 1, 0.68, 0.78)
-    x_text = x_text + width_text_to_print
-    -- draw line
-    x_tmp = x
-    local last_g_recorded = touchdown_g_table[1]
-    for k, g in pairs(touchdown_g_table) do
-        graphics.draw_line(x_tmp, y + (last_g_recorded / max_g_axis * _TD_CHART_HEIGHT), x_tmp + 2, y + (g / max_g_axis * _TD_CHART_HEIGHT))
-        if g == max_g_recorded then
-            graphics.draw_line(x_tmp, y, x_tmp, y + (_TD_CHART_HEIGHT))
-        end
-        x_tmp = x_tmp + 2
-        last_g_recorded = g
-    end
+    max_g_axis = 2.0
+    max_g_recorded = get_max_val(touchdown_g_table)
+    text_to_p = "Max "..string.format("%.02f", max_g_recorded).."G "
+    x_text = draw_curve(touchdown_g_table, 1,0.68,0.78, text_to_p, x_text, y_text, x, y, x, y, max_g_axis, max_g_recorded)
+
     -- now draw the chart line light blue
-    graphics.set_color(0.6, 0.85, 0.87, 1)
-    graphics.set_width(1)
-    -- print text
-    text_to_print = "Max "..string.format("%.02f", max_pch_recorded).."Degree "
-    width_text_to_print = measure_string(text_to_print)
-    draw_string(x_text, y_text, text_to_print, 0.6, 0.85, 0.87)
-    x_text = x_text + width_text_to_print
-    -- draw line
-    x_tmp = x
-    y_tmp = y + (_TD_CHART_HEIGHT / 2)
-    local last_pch_recorded = touchdown_pch_table[1]
-    for k, p in pairs(touchdown_pch_table) do
-        graphics.draw_line(x_tmp, y_tmp + (last_pch_recorded / max_pch_axis * _TD_CHART_HEIGHT), x_tmp + 2, y_tmp + (p / max_pch_axis * _TD_CHART_HEIGHT))
-        if p == max_pch_recorded then
-            graphics.draw_line(x_tmp, y, x_tmp, y + (_TD_CHART_HEIGHT))
-        end
-        x_tmp = x_tmp + 2
-        last_pch_recorded = p
-    end
+    max_pch_axis = 14.0
+    max_pch_recorded = get_max_val(touchdown_g_table)
+    text_to_p = "Max pitch "..string.format("%.02f", max_pch_recorded).."Degree "
+    x_text = draw_curve(touchdown_pch_table, 0.6,0.85,0.87, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_pch_axis, max_pch_recorded)
+
+    -- now draw the chart line orange
+    max_elev_axis = 1.0
+    max_elev_recorded = get_max_val(touchdown_elev_table)
+    text_to_p = "Max elevator "..string.format("%d", math.floor(max_elev_recorded*100.0).."% "
+    x_text = draw_curve(touchdown_elev_table, 1.0,0.49,0.15, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_elev_axis, max_elev_recorded)
+
+    -- now draw the chart line yellow
+    max_eng_axis = 1.0
+    max_eng_recorded = get_max_val(touchdown_eng_table)
+    text_to_p = "Max eng "..string.format("%d", math.floor(max_eng_recorded*100.0).."% "
+    x_text = draw_curve(touchdown_eng_table, 1.0,1.0,0.0, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_eng_axis, max_eng_recorded)
+
 end
 
 function calc_touchdown()
