@@ -27,7 +27,7 @@ local max_table_elements = 500
 
 show_touchdown_counter = 3
 collect_touchdown_data = true
-ground_counter = 0
+ground_counter = 10
 
 local lastVS = 1.0
 local lastG = 1.0
@@ -165,7 +165,7 @@ function draw_touchdown_graph()
     graphics.set_color(1, 1, 1, 1)
     graphics.set_width(3)
     -- title
-    draw_string(x + 5, y + _TD_CHART_HEIGHT - 15, "TouchDownRecorder V2.0 by cpuwolf", "grey")
+    draw_string(x + 5, y + _TD_CHART_HEIGHT - 15, "TouchDownRecorder V3.0 by cpuwolf", "grey")
 
     local x_text = x + 5
     local y_text = y + 8
@@ -232,7 +232,7 @@ function calc_touchdown()
         ground_counter = ground_counter + 1
         -- ignore debounce takeoff
         if ground_counter == 2 then
-            show_touchdown_counter = 20
+            show_touchdown_counter = 5
         -- stop data collection
         elseif ground_counter == 3 then
             collect_touchdown_data = false
@@ -260,4 +260,4 @@ end
 do_every_draw("draw_touchdown_graph()")
 do_often("calc_touchdown()")
 
-add_macro("Show TouchDownRecorder", "show_touchdown_counter = 20", "show_touchdown_counter = 0", "deactivate")
+add_macro("Show/Hide TouchDownRecorder", "show_touchdown_counter = 20", "show_touchdown_counter = 0", "deactivate")
