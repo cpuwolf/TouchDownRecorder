@@ -153,7 +153,7 @@ function draw_touchdown_graph()
     
     -- draw background first
     local x = (SCREEN_WIDTH / 2) - max_table_elements
-    local y = (SCREEN_HIGHT / 2) + 400
+    local y = SCREEN_HIGHT - 250
     XPLMSetGraphicsState(0,0,0,1,1,0,0)
     graphics.set_color(0, 0, 0, 0.50)
     graphics.draw_rectangle(x, y, x + (max_table_elements * 2), y + _TD_CHART_HEIGHT)
