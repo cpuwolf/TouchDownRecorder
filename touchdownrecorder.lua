@@ -208,7 +208,7 @@ function draw_touchdown_graph()
 
     -- now draw the chart line light blue
     max_pch_axis = 14.0
-    max_pch_recorded = get_max_val(touchdown_g_table)
+    max_pch_recorded = get_max_val(touchdown_pch_table)
     text_to_p = "Max pitch "..string.format("%.02f", max_pch_recorded).."Degree "
     x_text = draw_curve(touchdown_pch_table, 0.6,0.85,0.87, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_pch_axis, max_pch_recorded)
 
