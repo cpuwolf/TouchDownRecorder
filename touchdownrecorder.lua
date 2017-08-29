@@ -106,9 +106,10 @@ end
 
 function get_max_val(mytable)
     -- calculate max data
+    local mabs = math.abs
     local max_data = 0.0
     for k, el in pairs(mytable) do
-        if math.abs(el) > math.abs(max_data) then
+        if mabs(el) > mabs(max_data) then
             max_data = el
         end
     end
