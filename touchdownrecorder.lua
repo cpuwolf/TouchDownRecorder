@@ -83,7 +83,8 @@ function collect_flight_data()
     lastPitch = XPLMGetDataf(pitchRef)
     lastAir = check_ground(XPLMGetDataf(gearFRef))
     lastElev = XPLMGetDataf(elevatorRef)
-    lastEng = XPLMGetDataf(engRef)
+    local engtb = XPLMGetDatavf(engRef,0,4)
+    lastEng = engtb[1]
     
     -- fill the table
     table.insert(touchdown_vs_table, lastVS)
@@ -152,7 +153,7 @@ function draw_touchdown_graph()
     
     -- draw background first
     local x = (SCREEN_WIDTH / 2) - max_table_elements
-    local y = (SCREEN_HIGHT / 2) + 200
+    local y = (SCREEN_HIGHT / 2) + 400
     XPLMSetGraphicsState(0,0,0,1,1,0,0)
     graphics.set_color(0, 0, 0, 0.50)
     graphics.draw_rectangle(x, y, x + (max_table_elements * 2), y + _TD_CHART_HEIGHT)
@@ -214,15 +215,15 @@ function draw_touchdown_graph()
     x_text = draw_curve(touchdown_pch_table, 0.6,0.85,0.87, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_pch_axis, max_pch_recorded)
 
     -- now draw the chart line orange
-    max_elev_axis = 1.0
+    max_elev_axis = 2.0
     max_elev_recorded = get_max_val(touchdown_elev_table)
-    text_to_p = "Max elevator "..string.format("%d", math.floor(max_elev_recorded*100.0).."% "
+    text_to_p = "Max elevator "..string.format("%d", math.floor(max_elev_recorded*100.0)).."% "
     x_text = draw_curve(touchdown_elev_table, 1.0,0.49,0.15, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_elev_axis, max_elev_recorded)
 
     -- now draw the chart line yellow
-    max_eng_axis = 1.0
+    max_eng_axis = 2.0
     max_eng_recorded = get_max_val(touchdown_eng_table)
-    text_to_p = "Max eng "..string.format("%d", math.floor(max_eng_recorded*100.0).."% "
+    text_to_p = "Max eng "..string.format("%d", math.floor(max_eng_recorded*100.0)).."% "
     x_text = draw_curve(touchdown_eng_table, 1.0,1.0,0.0, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_eng_axis, max_eng_recorded)
 
 end
@@ -261,4 +262,4 @@ end
 do_every_draw("draw_touchdown_graph()")
 do_often("calc_touchdown()")
 
-add_macro("Show/Hide TouchDownRecorder", "show_touchdown_counter = 20", "show_touchdown_counter = 0", "deactivate")
+add_macro("Show/Hide TouchDownRecorder", "show_touchdown_counter = 60", "show_touchdown_counter = 0", "deactivate")
