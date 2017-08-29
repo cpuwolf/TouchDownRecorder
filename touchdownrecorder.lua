@@ -23,7 +23,7 @@ local _TD_CHART_HEIGHT = 200
 
 local max_table_elements = 500
 
-show_touchdown_recorder = false
+show_touchdown_counter = 3
 collect_touchdown_data = true
 ground_counter = 0
 
@@ -37,11 +37,11 @@ local gForceRef = XPLMFindDataRef("sim/flightmodel2/misc/gforce_normal")
 local vertSpeedRef = XPLMFindDataRef("sim/flightmodel/position/vh_ind_fpm2")
 local pitchRef = XPLMFindDataRef("sim/flightmodel/position/theta")
 local elevatorRef = XPLMFindDataRef("sim/flightmodel2/controls/pitch_ratio")
+local engRef = XPLMFindDataRef("sim/flightmodel2/engines/throttle_used_ratio")
 
 local landingString = ""
 local IsLogWritten = true
 local IsTouchDown = false
-local IsFirstTimeShow = true
 
 function write_log_file()
     -- get airport info
@@ -100,7 +100,7 @@ function draw_touchdown_graph()
     end
 
     -- dont draw when the function isn't wanted
-    if show_touchdown_recorder == false then return end
+    if show_touchdown_counter <= 0 then return end
     
     -- draw background first
     local x = (SCREEN_WIDTH / 2) - max_table_elements
@@ -242,7 +242,7 @@ function calc_touchdown()
         ground_counter = ground_counter + 1
         -- ignore debounce takeoff
         if ground_counter == 2 then
-            show_touchdown_recorder = true
+            show_touchdown_counter = 20
         -- stop data collection
         elseif ground_counter == 3 then
             collect_touchdown_data = false
@@ -253,17 +253,16 @@ function calc_touchdown()
             if not IsLogWritten then
                 write_log_file()
             end
-        elseif IsFirstTimeShow and ground_counter == 8 then
-            show_touchdown_recorder = false
-            IsFirstTimeShow = false
-        -- hide chart
-        elseif ground_counter > 60 then
-            show_touchdown_recorder = false
         end
     else
+        -- in the air
         ground_counter = 0
         collect_touchdown_data = true
         IsTouchDown = false
+    end
+    -- count down
+    if show_touchdown_counter > 0 then
+        show_touchdown_counter = show_touchdown_counter - 1
     end
 end
 
@@ -271,4 +270,4 @@ end
 do_every_draw("draw_touchdown_graph()")
 do_often("calc_touchdown()")
 
-add_macro("Show TouchDownRecorder", "show_touchdown_recorder = true", "show_touchdown_recorder = false", "deactivate")
+add_macro("Show TouchDownRecorder", "show_touchdown_counter = 20", "show_touchdown_counter = 0", "deactivate")
