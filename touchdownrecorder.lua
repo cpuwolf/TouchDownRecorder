@@ -230,6 +230,22 @@ function draw_touchdown_graph()
     text_to_p = "Max elevator "..string.format("%.02f", max_elev_recorded*100.0).."% "
     x_text = draw_curve(touchdown_elev_table, 1.0,0.49,0.15, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_elev_axis, max_elev_recorded)
 
+    -- draw close button on top-left
+    local close_x = x + (2*max_table_elements) - 18
+    local close_y = y + _TD_CHART_HEIGHT
+    draw_string_Helvetica_18( close_x, close_y, "X")
+    -- check mouse click
+    if check_click(MOUSE_X, MOUSE_Y, close_x, close_y, 18, 18) then
+        show_touchdown_counter = 0
+    end
+end
+
+function check_click( point_x, point_y, rect_x, rect_y, rect_w, rect_h)
+    if point_x < rect_x then return false end
+    if point_x > rect_x+rect_w then return false end
+    if point_y < rect_y then return false end
+    if point_y > rect_y+rect_h then return false end
+    return true
 end
 
 function calc_touchdown()
