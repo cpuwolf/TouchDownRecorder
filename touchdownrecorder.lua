@@ -41,11 +41,14 @@ local gForceRef = XPLMFindDataRef("sim/flightmodel2/misc/gforce_normal")
 local vertSpeedRef = XPLMFindDataRef("sim/flightmodel/position/vh_ind_fpm2")
 local pitchRef = XPLMFindDataRef("sim/flightmodel/position/theta")
 local elevatorRef = XPLMFindDataRef("sim/flightmodel2/controls/pitch_ratio")
-local engRef = XPLMFindDataRef("sim/flightmodel2/engines/throttle_used_ratio")
+local engRef = XPLMFindDataRef("sim/flightmodel/engine/ENGN_thro_use")
 
 local landingString = ""
 local IsLogWritten = true
 local IsTouchDown = false
+
+local close_x = 0
+local close_y = 0
 
 function write_log_file()
     -- get airport info
@@ -200,12 +203,6 @@ function draw_touchdown_graph()
         last_air_recorded = a
     end
 
-    -- now draw the chart line yellow. draw engine firstly because possible this value is always 0
-    max_eng_axis = 2.0
-    max_eng_recorded = get_max_val(touchdown_eng_table)
-    text_to_p = "Max eng "..string.format("%.02f", max_eng_recorded*100.0).."% "
-    x_text = draw_curve(touchdown_eng_table, 1.0,1.0,0.0, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_eng_axis, max_eng_recorded)
-
     -- now draw the chart line green
     max_vs_axis = 1000.0
     max_vs_recorded = get_max_val(touchdown_vs_table)
@@ -230,14 +227,18 @@ function draw_touchdown_graph()
     text_to_p = "Max elevator "..string.format("%.02f", max_elev_recorded*100.0).."% "
     x_text = draw_curve(touchdown_elev_table, 1.0,0.49,0.15, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_elev_axis, max_elev_recorded)
 
+    -- now draw the chart line yellow. draw engine firstly because possible this value is always 0
+    max_eng_axis = 2.0
+    max_eng_recorded = get_max_val(touchdown_eng_table)
+    text_to_p = "Max eng "..string.format("%.02f", max_eng_recorded*100.0).."% "
+    x_text = draw_curve(touchdown_eng_table, 1.0,1.0,0.0, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_eng_axis, max_eng_recorded)
+
     -- draw close button on top-left
-    local close_x = x + (2*max_table_elements) - 18
-    local close_y = y + _TD_CHART_HEIGHT
+    graphics.set_color(1, 1, 1, 1)
+    close_x = x + (2*max_table_elements) - 18
+    close_y = y + _TD_CHART_HEIGHT - 18
     draw_string_Helvetica_18( close_x, close_y, "X")
-    -- check mouse click
-    if check_click(MOUSE_X, MOUSE_Y, close_x, close_y - 18, 18, 18) then
-        show_touchdown_counter = 0
-    end
+
 end
 
 function check_click( point_x, point_y, rect_x, rect_y, rect_w, rect_h)
@@ -246,6 +247,13 @@ function check_click( point_x, point_y, rect_x, rect_y, rect_w, rect_h)
     if point_y < rect_y then return false end
     if point_y > rect_y+rect_h then return false end
     return true
+end
+
+function mouse_clck()
+    -- check mouse click
+    if check_click(MOUSE_X, MOUSE_Y, close_x, close_y, 18, 18) then
+        show_touchdown_counter = 0
+    end
 end
 
 function calc_touchdown()
@@ -281,5 +289,6 @@ end
 
 do_every_draw("draw_touchdown_graph()")
 do_often("calc_touchdown()")
+do_on_mouse_click( "mouse_clck()")
 
 add_macro("Show TouchDownRecorder", "show_touchdown_counter = 60")
