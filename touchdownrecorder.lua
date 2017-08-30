@@ -131,10 +131,14 @@ function draw_curve(mytable, cr,cg,cb, text_to_print, x_text_start, y_text_start
     local x_tmp = x_start
     local y_tmp = y_start
     local last_recorded = mytable[1]
+    local draw_max_counter = 0
     for k, p in pairs(mytable) do
         graphics.draw_line(x_tmp, y_tmp + (last_recorded / max_axis * _TD_CHART_HEIGHT), x_tmp + 2, y_tmp + (p / max_axis * _TD_CHART_HEIGHT))
         if p == max_data then
-            graphics.draw_line(x_tmp, y_orig, x_tmp, y_orig + (_TD_CHART_HEIGHT))
+            if draw_max_counter == 0 then
+                graphics.draw_line(x_tmp, y_orig, x_tmp, y_orig + (_TD_CHART_HEIGHT))
+            end
+            draw_max_counter = draw_max_counter + 1
         end
         x_tmp = x_tmp + 2
         last_recorded = p
