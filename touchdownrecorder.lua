@@ -203,7 +203,7 @@ function draw_touchdown_graph()
     -- now draw the chart line yellow. draw engine firstly because possible this value is always 0
     max_eng_axis = 2.0
     max_eng_recorded = get_max_val(touchdown_eng_table)
-    text_to_p = "Max eng "..string.format("%d", math.floor(max_eng_recorded*100.0)).."% "
+    text_to_p = "Max eng "..string.format("%.02f", max_eng_recorded*100.0).."% "
     x_text = draw_curve(touchdown_eng_table, 1.0,1.0,0.0, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_eng_axis, max_eng_recorded)
 
     -- now draw the chart line green
@@ -227,7 +227,7 @@ function draw_touchdown_graph()
     -- now draw the chart line orange
     max_elev_axis = 2.0
     max_elev_recorded = get_max_val(touchdown_elev_table)
-    text_to_p = "Max elevator "..string.format("%d", math.floor(max_elev_recorded*100.0)).."% "
+    text_to_p = "Max elevator "..string.format("%.02f", max_elev_recorded*100.0).."% "
     x_text = draw_curve(touchdown_elev_table, 1.0,0.49,0.15, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_elev_axis, max_elev_recorded)
 
 end
