@@ -235,7 +235,7 @@ function draw_touchdown_graph()
     local close_y = y + _TD_CHART_HEIGHT
     draw_string_Helvetica_18( close_x, close_y, "X")
     -- check mouse click
-    if check_click(MOUSE_X, MOUSE_Y, close_x, close_y, 18, 18) then
+    if check_click(MOUSE_X, MOUSE_Y, close_x, close_y - 18, 18, 18) then
         show_touchdown_counter = 0
     end
 end
