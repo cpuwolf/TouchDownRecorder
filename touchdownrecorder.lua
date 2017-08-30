@@ -41,7 +41,7 @@ local gForceRef = XPLMFindDataRef("sim/flightmodel2/misc/gforce_normal")
 local vertSpeedRef = XPLMFindDataRef("sim/flightmodel/position/vh_ind_fpm2")
 local pitchRef = XPLMFindDataRef("sim/flightmodel/position/theta")
 local elevatorRef = XPLMFindDataRef("sim/flightmodel2/controls/pitch_ratio")
-local engRef = XPLMFindDataRef("sim/flightmodel/engine/ENGN_thro_use")
+local engRef = XPLMFindDataRef("sim/flightmodel2/engines/throttle_used_ratio")
 
 local landingString = ""
 local IsLogWritten = true
@@ -87,7 +87,7 @@ function collect_flight_data()
     lastAir = check_ground(XPLMGetDataf(gearFRef))
     lastElev = XPLMGetDataf(elevatorRef)
     local engtb = XPLMGetDatavf(engRef,0,4)
-    lastEng = engtb[1]
+    lastEng = engtb[0]
     
     -- fill the table
     table.insert(touchdown_vs_table, lastVS)
