@@ -282,4 +282,4 @@ end
 do_every_draw("draw_touchdown_graph()")
 do_often("calc_touchdown()")
 
-add_macro("Show/Hide TouchDownRecorder", "show_touchdown_counter = 60", "show_touchdown_counter = 0", "deactivate")
+add_macro("Show TouchDownRecorder", "show_touchdown_counter = 60")
