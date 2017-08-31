@@ -21,6 +21,7 @@ local touchdown_air_table = {}
 local touchdown_elev_table = {}
 local touchdown_eng_table = {}
 local touchdown_agl_table = {}
+local touchdown_tm_table = {}
 
 local _TD_CHART_HEIGHT = 200
 
@@ -37,6 +38,7 @@ local lastAir = false
 local lastElev = 0.0
 local lastEng = 0.0
 local lastAgl = 0.0
+local lastTm = 0.0
 
 local gearFRef = XPLMFindDataRef("sim/flightmodel/forces/fnrml_gear")
 local gForceRef = XPLMFindDataRef("sim/flightmodel2/misc/gforce_normal")
@@ -45,6 +47,7 @@ local pitchRef = XPLMFindDataRef("sim/flightmodel/position/theta")
 local elevatorRef = XPLMFindDataRef("sim/flightmodel2/controls/pitch_ratio")
 local engRef = XPLMFindDataRef("sim/flightmodel2/engines/throttle_used_ratio")
 local aglRef = XPLMFindDataRef("sim/flightmodel/position/y_agl")
+local tmRef = XPLMFindDataRef("sim/time/total_flight_time_sec")
 
 local landingString = ""
 local IsLogWritten = true
@@ -90,6 +93,7 @@ function collect_flight_data()
     lastAir = check_ground(XPLMGetDataf(gearFRef))
     lastElev = XPLMGetDataf(elevatorRef)
     lastAgl = XPLMGetDataf(aglRef)
+    lastTm = XPLMGetDataf(tmRef)
     local engtb = XPLMGetDatavf(engRef,0,4)
     lastEng = engtb[0]
     
@@ -101,6 +105,7 @@ function collect_flight_data()
     table.insert(touchdown_elev_table, lastElev)
     table.insert(touchdown_eng_table, lastEng)
     table.insert(touchdown_agl_table, lastAgl)
+    table.insert(touchdown_tm_table, lastTm)
     
     -- limit the table size to the given maximum
     if table.maxn(touchdown_vs_table) > max_table_elements then
@@ -111,6 +116,7 @@ function collect_flight_data()
         table.remove(touchdown_elev_table, 1)
         table.remove(touchdown_eng_table, 1)
         table.remove(touchdown_agl_table, 1)
+        table.remove(touchdown_tm_table, 1)
     end
 end
 
@@ -207,6 +213,21 @@ function draw_touchdown_graph()
         end
         x_tmp = x_tmp + 2
         last_air_recorded = a
+    end
+
+    -- draw horizontal axis (white)
+    graphics.set_color(1, 1, 1, 1)
+    graphics.set_width(1)
+    x_tmp = x
+    local last_tm_recorded = touchdown_tm_table[1]
+    for k, a in pairs(touchdown_tm_table) do
+        -- second axis
+        if a - last_tm_recorded >= 1.0 then
+            -- 1 second
+            graphics.draw_line(x_tmp, y, x_tmp, y + 3)
+            last_tm_recorded = touchdown_tm_table[k]
+        end
+        x_tmp = x_tmp + 2
     end
 
     -- now draw the chart line green
