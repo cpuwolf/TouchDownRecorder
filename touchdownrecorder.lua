@@ -305,8 +305,4 @@ do_on_mouse_click( "mouse_clck()")
 
 add_macro("Show TouchDownRecorder", "show_touchdown_counter = 60")
 
-create_command("FlyWithLua/TouchDownRecorder/Show", -- command's name
-  "Show TouchDownRecorder Chart",                   -- description
-  "show_touchdown_counter = 60",                    -- set DataRef on first press
-  "",                                               -- do nothing during hold
-  "")                                               -- do nothing on release
+create_command("FlyWithLua/TouchDownRecorder/Show", "Show TouchDownRecorder Chart", "show_touchdown_counter = 60","","")
