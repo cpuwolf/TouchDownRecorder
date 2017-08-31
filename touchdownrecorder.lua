@@ -1,6 +1,6 @@
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
 -- Script:   touchdownrecorder.lua                                              
--- Version:  1.0
+-- Version:  3.0
 -- Build:    2017-08-23 03:24z +08
 -- Author:   Wei Shuai <cpuwolf@gmail.com>
 -- website:  https://github.com/cpuwolf/TouchDownRecorder
@@ -20,6 +20,7 @@ local touchdown_pch_table = {}
 local touchdown_air_table = {}
 local touchdown_elev_table = {}
 local touchdown_eng_table = {}
+local touchdown_agl_table = {}
 
 local _TD_CHART_HEIGHT = 200
 
@@ -88,6 +89,7 @@ function collect_flight_data()
     lastPitch = XPLMGetDataf(pitchRef)
     lastAir = check_ground(XPLMGetDataf(gearFRef))
     lastElev = XPLMGetDataf(elevatorRef)
+    lastAgl = XPLMGetDataf(aglRef)
     local engtb = XPLMGetDatavf(engRef,0,4)
     lastEng = engtb[0]
     
@@ -98,6 +100,7 @@ function collect_flight_data()
     table.insert(touchdown_air_table, lastAir)
     table.insert(touchdown_elev_table, lastElev)
     table.insert(touchdown_eng_table, lastEng)
+    table.insert(touchdown_agl_table, lastAgl)
     
     -- limit the table size to the given maximum
     if table.maxn(touchdown_vs_table) > max_table_elements then
@@ -107,6 +110,7 @@ function collect_flight_data()
         table.remove(touchdown_air_table, 1)
         table.remove(touchdown_elev_table, 1)
         table.remove(touchdown_eng_table, 1)
+        table.remove(touchdown_agl_table, 1)
     end
 end
 
@@ -168,7 +172,7 @@ function draw_touchdown_graph()
     graphics.draw_rectangle(x, y, x + (max_table_elements * 2), y + _TD_CHART_HEIGHT)
 
     -- draw center line
-    graphics.set_color(0, 0, 0, 0.8)
+    graphics.set_color(0, 0, 0, 1)
     graphics.set_width(1)
     graphics.draw_line(x, y + (_TD_CHART_HEIGHT / 2), x + (max_table_elements * 2), y + (_TD_CHART_HEIGHT / 2))
 
@@ -229,11 +233,17 @@ function draw_touchdown_graph()
     text_to_p = "Max elevator "..string.format("%.02f", max_elev_recorded*100.0).."% "
     x_text = draw_curve(touchdown_elev_table, 1.0,0.49,0.15, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_elev_axis, max_elev_recorded)
 
-    -- now draw the chart line yellow. draw engine firstly because possible this value is always 0
+    -- now draw the chart line yellow
     max_eng_axis = 2.0
     max_eng_recorded = get_max_val(touchdown_eng_table)
     text_to_p = "Max eng "..string.format("%.02f", max_eng_recorded*100.0).."% "
     x_text = draw_curve(touchdown_eng_table, 1.0,1.0,0.0, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_eng_axis, max_eng_recorded)
+
+    -- now draw the chart line red
+    max_agl_axis = 200.0
+    max_agl_recorded = get_max_val(touchdown_agl_table)
+    text_to_p = "Max AGL "..string.format("%.02f", max_agl_recorded).."M "
+    x_text = draw_curve(touchdown_agl_table, 1.0,0.1,0.1, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_agl_axis, max_agl_recorded)
 
     -- draw close button on top-right
     graphics.set_color(1, 1, 1, 1)
@@ -264,7 +274,7 @@ function calc_touchdown()
         ground_counter = ground_counter + 1
         -- ignore debounce takeoff
         if ground_counter == 2 then
-            show_touchdown_counter = 5
+            show_touchdown_counter = 4
         -- stop data collection
         elseif ground_counter == 3 then
             collect_touchdown_data = false
