@@ -152,7 +152,7 @@ function draw_curve(mytable, cr,cg,cb, text_to_print, x_text_start, y_text_start
         graphics.draw_line(x_tmp, y_tmp + (last_recorded / max_axis * _TD_CHART_HEIGHT), x_tmp + 2, y_tmp + y_height)
         if p == max_data then
             if draw_max_counter == 0 then
-                graphics.draw_line(x_tmp, y_orig + 10, x_tmp, y_orig + y_height)
+                graphics.draw_line(x_tmp, y_orig, x_tmp, y_orig + _TD_CHART_HEIGHT)
             end
             draw_max_counter = draw_max_counter + 1
         end
@@ -260,7 +260,7 @@ function draw_touchdown_graph()
     x_text = draw_curve(touchdown_eng_table, 1.0,1.0,0.0, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_eng_axis, max_eng_recorded)
 
     -- now draw the chart line red
-    max_agl_axis = 200.0
+    max_agl_axis = 6.0
     max_agl_recorded = get_max_val(touchdown_agl_table)
     text_to_p = "Max AGL "..string.format("%.02f", max_agl_recorded).."M "
     x_text = draw_curve(touchdown_agl_table, 1.0,0.1,0.1, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_agl_axis, max_agl_recorded)
@@ -332,4 +332,4 @@ do_on_mouse_click( "mouse_clck()")
 
 add_macro("Show TouchDownRecorder", "show_touchdown_counter = 60")
 
-create_command("FlyWithLua/TouchDownRecorder/Show", "Show TouchDownRecorder Chart", "toggle_show()","","")
+create_command("FlyWithLua/TouchDownRecorder/Show", "Toggle TouchDownRecorder Chart", "toggle_show()","","")

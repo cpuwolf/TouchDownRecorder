@@ -5,6 +5,22 @@ it is used for aircraft landing data analysis
 
 TouchDownRecorder .lua scripts is based on FlyWithLua plugin for X-Plane
 
+## feature ##
+
+* touch ground times
+* landing fpm, pitch, G force
+* max fpm,pitch, G force around landing
+* landing log will be automatically written to log file TouchDownRecorderLog.txt
+* automatically pop up after landing
+* button/key assignment
+
+
+## Joystick button/key assignment ##
+
+assign button/key to FlyWithLua/TouchDownRecorder/Toggle TouchDownRecorder Chart
+
+![TouchDownRecorder](TouchDownRecorder_cmd.jpg)
+
 ## Screenshot on X-Plane 11 ##
 
 ![TouchDownRecorder](TouchDownRecorder.jpg)
