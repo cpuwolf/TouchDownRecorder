@@ -182,6 +182,19 @@ function draw_touchdown_graph()
     graphics.set_width(1)
     graphics.draw_line(x, y + (_TD_CHART_HEIGHT / 2), x + (max_table_elements * 2), y + (_TD_CHART_HEIGHT / 2))
 
+    -- draw horizontal axis
+    x_tmp = x
+    local last_tm_recorded = touchdown_tm_table[1]
+    for k, a in pairs(touchdown_tm_table) do
+        -- second axis
+        if a - last_tm_recorded >= 1.0 then
+            -- 1 second
+            graphics.draw_line(x_tmp, y, x_tmp, y + _TD_CHART_HEIGHT)
+            last_tm_recorded = touchdown_tm_table[k]
+        end
+        x_tmp = x_tmp + 2
+    end
+
     -- and print on the screen
     graphics.set_color(1, 1, 1, 1)
     graphics.set_width(3)
@@ -213,21 +226,6 @@ function draw_touchdown_graph()
         end
         x_tmp = x_tmp + 2
         last_air_recorded = a
-    end
-
-    -- draw horizontal axis (white)
-    graphics.set_color(1, 1, 1, 1)
-    graphics.set_width(1)
-    x_tmp = x
-    local last_tm_recorded = touchdown_tm_table[1]
-    for k, a in pairs(touchdown_tm_table) do
-        -- second axis
-        if a - last_tm_recorded >= 1.0 then
-            -- 1 second
-            graphics.draw_line(x_tmp, y, x_tmp, y + 3)
-            last_tm_recorded = touchdown_tm_table[k]
-        end
-        x_tmp = x_tmp + 2
     end
 
     -- now draw the chart line green
@@ -319,6 +317,13 @@ function calc_touchdown()
     end
 end
 
+function toggle_show()
+    if show_touchdown_counter > 0 then
+        show_touchdown_counter = 0
+    else
+        show_touchdown_counter = 60
+    end
+end
 
 do_every_draw("draw_touchdown_graph()")
 do_often("calc_touchdown()")
@@ -326,4 +331,4 @@ do_on_mouse_click( "mouse_clck()")
 
 add_macro("Show TouchDownRecorder", "show_touchdown_counter = 60")
 
-create_command("FlyWithLua/TouchDownRecorder/Show", "Show TouchDownRecorder Chart", "show_touchdown_counter = 60","","")
+create_command("FlyWithLua/TouchDownRecorder/Show", "Show TouchDownRecorder Chart", "toggle_show()","","")
