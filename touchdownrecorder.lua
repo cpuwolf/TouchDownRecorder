@@ -35,6 +35,7 @@ local lastPitch = 1.0
 local lastAir = false
 local lastElev = 0.0
 local lastEng = 0.0
+local lastAgl = 0.0
 
 local gearFRef = XPLMFindDataRef("sim/flightmodel/forces/fnrml_gear")
 local gForceRef = XPLMFindDataRef("sim/flightmodel2/misc/gforce_normal")
@@ -42,6 +43,7 @@ local vertSpeedRef = XPLMFindDataRef("sim/flightmodel/position/vh_ind_fpm2")
 local pitchRef = XPLMFindDataRef("sim/flightmodel/position/theta")
 local elevatorRef = XPLMFindDataRef("sim/flightmodel2/controls/pitch_ratio")
 local engRef = XPLMFindDataRef("sim/flightmodel2/engines/throttle_used_ratio")
+local aglRef = XPLMFindDataRef("sim/flightmodel/position/y_agl")
 
 local landingString = ""
 local IsLogWritten = true
@@ -187,7 +189,7 @@ function draw_touchdown_graph()
             if a then
                 IsTouchDown = true
                 -- draw vertical line
-                graphics.draw_line(x_tmp, y, x_tmp, y + _TD_CHART_HEIGHT)
+                graphics.draw_line(x_tmp, y + (_TD_CHART_HEIGHT/4), x_tmp, y + (_TD_CHART_HEIGHT*3/4))
                 -- print text
                 landingVS = touchdown_vs_table[k]
                 landingG = touchdown_g_table[k]
@@ -233,7 +235,7 @@ function draw_touchdown_graph()
     text_to_p = "Max eng "..string.format("%.02f", max_eng_recorded*100.0).."% "
     x_text = draw_curve(touchdown_eng_table, 1.0,1.0,0.0, text_to_p, x_text, y_text, x, y, x, y + (_TD_CHART_HEIGHT / 2), max_eng_axis, max_eng_recorded)
 
-    -- draw close button on top-left
+    -- draw close button on top-right
     graphics.set_color(1, 1, 1, 1)
     close_x = x + (2*max_table_elements) - 18
     close_y = y + _TD_CHART_HEIGHT - 18
@@ -292,3 +294,9 @@ do_often("calc_touchdown()")
 do_on_mouse_click( "mouse_clck()")
 
 add_macro("Show TouchDownRecorder", "show_touchdown_counter = 60")
+
+create_command("FlyWithLua/TouchDownRecorder/Show", -- command's name
+  "Show TouchDownRecorder Chart",                   -- description
+  "show_touchdown_counter = 60",                    -- set DataRef on first press
+  "",                                               -- do nothing during hold
+  "")                                               -- do nothing on release
