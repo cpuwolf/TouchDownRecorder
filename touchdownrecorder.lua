@@ -179,7 +179,7 @@ function draw_touchdown_graph()
 
     -- draw center line
     graphics.set_color(0, 0, 0, 1)
-    graphics.set_width(1)
+    graphics.set_width(3)
     graphics.draw_line(x, y + (_TD_CHART_HEIGHT / 2), x + (max_table_elements * 2), y + (_TD_CHART_HEIGHT / 2))
 
     -- draw horizontal axis
