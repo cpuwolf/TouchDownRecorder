@@ -14,6 +14,9 @@ TouchDownRecorder .lua scripts is based on FlyWithLua plugin for X-Plane
 * automatically pop up after landing
 * button/key assignment
 
+## maintain website ##
+
+https://forums.x-plane.org/index.php?/files/file/39630-touchdownrecorder/
 
 ## Joystick button/key assignment ##
 
